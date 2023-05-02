@@ -37,7 +37,6 @@ void input_check( int&input_var )
 
 pokemon_type parse_string_to_pok_type(string temp)
 {
-
     std::vector<string> mas{"NORMAL", "FIRE", "WATER", "ELECTRIC", "GRASS", "ICE", "FIGHTING", "POISON", "GROUND", "FLYING", "PSYCHIC", "BUG", "ROCK", "GHOST", "DRAGON", "DARK", "STEEL", "FAIRY"};
 
     for (int i = 0; i < mas.size() ; ++i)
@@ -63,288 +62,76 @@ struct Pokemon
         int SPEED;
     }STATS;
 
-    //struct
-    //{
-    //    struct
-    //    {
-    //        string ATCK_NAME;
-    //        int DAMAGE;
-    //    }ATTACK_1;
-
-    //    struct
-    //    {
-    //        string ATCK_NAME;
-    //        int DAMAGE;
-    //    }ATTACK_2;
-
-    //    struct
-    //    {
-    //        string ATCK_NAME;
-    //        int DAMAGE;
-    //    }ATTACK_3;
-
-    //}ATTACKS;
-
     struct
     {
         string ATCK_NAME;
         int DAMAGE;
         int ENERGY;
     }ATTACKS[3];
-
-    void fightt(Pokemon pfirst, Pokemon psecond)
-    {
-        cout << "Бой начался между: " << pfirst.NAME << " и " << psecond.NAME << endl;
-        int fta;
-        if (pfirst.STATS.SPEED >= psecond.STATS.SPEED)
-            fta = 0;
-        else
-            fta = 1;
-
-        if (fta)
-            cout << "Первым атакует " << psecond.NAME << endl;
-        else
-            cout << "Первым атакует " << pfirst.NAME << endl;
-
-        int round = 1;
-
-        int first_weak, second_weak;
-
-        if (pfirst.STATS.WEAKNESS == psecond.TYPE)
-        {
-            first_weak = 2;
-        }
-        else
-            first_weak = 1;
-
-        if (pfirst.TYPE == psecond.STATS.WEAKNESS)
-        {
-            second_weak = 2;
-        }
-        else
-            second_weak = 1;
-        
-        int first_energy  = 50;
-        int second_energy = 50;
-
-        while (true)
-        {
-            cout << "Раунд: " << round << " Характеристики покемонов: " <<
-                pfirst.NAME << " здоровье - " << pfirst.STATS.HEALTH << " Энергия - " << first_energy <<
-                "   " << psecond.NAME << " здоровье - " << psecond.STATS.HEALTH << " Энергия - " << second_energy;
-            cout << "\n";
-
-
-            if (fta % 2 == 0)
-            {
-                int attack_id;
-                string fname = pfirst.NAME;
-                string sname = psecond.NAME;
-                /*cout << "Выберите атаку против " << psecond.NAME;
-                cout << endl << "Введите \"1\" для атаки " << pfirst.ATTACKS.ATTACK_1.ATCK_NAME
-                    << " она нанесет " << pfirst.ATTACKS.ATTACK_1.DAMAGE;
-
-                cout << endl << "Введите \"2\" для атаки " << pfirst.ATTACKS.ATTACK_2.ATCK_NAME
-                    << " она нанесет " << pfirst.ATTACKS.ATTACK_2.DAMAGE;
-
-                cout << endl << "Введите \"3\" для атаки " << pfirst.ATTACKS.ATTACK_3.ATCK_NAME
-                    << " она нанесет " << pfirst.ATTACKS.ATTACK_3.DAMAGE;
-                cout << endl;*/
-                
-                cout << "Выберите атаку против " << psecond.NAME;
-
-                if (second_weak == 2)
-                    cout << "\nПокемон " << sname << " слаб против аттак " << fname;
-
-                if (pfirst.ATTACKS[0].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"1\" для атаки " << pfirst.ATTACKS[0].ATCK_NAME
-                        << " она нанесет " << (second_weak * pfirst.ATTACKS[0].DAMAGE) - psecond.STATS.DEFENCE << " и затратит " << pfirst.ATTACKS[0].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << pfirst.ATTACKS[0].ATCK_NAME;
-                
-                if (pfirst.ATTACKS[1].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"2\" для атаки " << pfirst.ATTACKS[1].ATCK_NAME
-                        << " она нанесет " << (second_weak * pfirst.ATTACKS[1].DAMAGE) - psecond.STATS.DEFENCE << " и затратит " << pfirst.ATTACKS[1].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << pfirst.ATTACKS[1].ATCK_NAME;
-
-                if (pfirst.ATTACKS[2].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"3\" для атаки " << pfirst.ATTACKS[2].ATCK_NAME
-                        << " она нанесет " << (second_weak * pfirst.ATTACKS[2].DAMAGE) - psecond.STATS.DEFENCE << " и затратит " << pfirst.ATTACKS[2].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << pfirst.ATTACKS[2].ATCK_NAME;
-
-                
-                cout << endl << "Введите \"4\" для того чтобы пропустить ход" << endl;
-
-                input_check(attack_id);
-                
-
-                switch (attack_id)
-                {
-                case 1:
-                {
-                    //cout << "Вы выбрали атаку: " << pfirst.ATTACKS[0].ATCK_NAME;
-                    
-                    int attack_damage = (second_weak*pfirst.ATTACKS[0].DAMAGE) - psecond.STATS.DEFENCE;
-                    first_energy -= pfirst.ATTACKS[0].ENERGY;
-                    if (attack_damage >= 0)
-                        psecond.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                case 2:
-                {
-                    int attack_damage = (second_weak * pfirst.ATTACKS[1].DAMAGE) - psecond.STATS.DEFENCE;
-                    first_energy -= pfirst.ATTACKS[1].ENERGY;
-                    if (attack_damage >= 0)
-                        psecond.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                case 3:
-                {
-                    int attack_damage = (second_weak * pfirst.ATTACKS[2].DAMAGE) - psecond.STATS.DEFENCE;
-                    first_energy -= pfirst.ATTACKS[2].ENERGY;
-                    if (attack_damage >= 0)
-                        psecond.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                default:
-                    break;
-                }
-
-                if (pfirst.STATS.HEALTH <= 0)
-                {
-                    cout << psecond.NAME << " Побеждает";
-                    break;
-                }
-                else if (psecond.STATS.HEALTH <= 0)
-                {
-                    cout << pfirst.NAME << " Побеждает";
-                    break;
-                }
-
-                
-
-                fta++;
-                first_energy += 5;
-                if (first_energy > 50)
-                    first_energy = 50;
-
-                cout << "Конец хода. Теперь ходит " << psecond.NAME << endl;
-            }
-
-            else
-            {
-                int attack_id;
-                string fname = pfirst.NAME;
-                string sname = psecond.NAME;
-                
-                cout << "Выберите атаку против " << pfirst.NAME;
-                if (first_weak == 2)
-                    cout << "\nПокемон " << fname << " слаб против аттак " << sname;
-
-                if (psecond.ATTACKS[0].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"1\" для атаки " << psecond.ATTACKS[0].ATCK_NAME
-                        << " она нанесет " << (first_weak * psecond.ATTACKS[0].DAMAGE) - pfirst.STATS.DEFENCE << " и затратит " << psecond.ATTACKS[0].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << psecond.ATTACKS[0].ATCK_NAME;
-
-                if (psecond.ATTACKS[1].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"2\" для атаки " << psecond.ATTACKS[1].ATCK_NAME
-                        << " она нанесет " << (first_weak * psecond.ATTACKS[1].DAMAGE) - pfirst.STATS.DEFENCE << " и затратит " << psecond.ATTACKS[1].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << psecond.ATTACKS[1].ATCK_NAME;
-                
-                if (psecond.ATTACKS[2].ENERGY - first_energy <= 0)
-                {
-                    cout << endl << "Введите \"3\" для атаки " << psecond.ATTACKS[2].ATCK_NAME
-                        << " она нанесет " << (first_weak * psecond.ATTACKS[2].DAMAGE) - pfirst.STATS.DEFENCE << " и затратит " << psecond.ATTACKS[2].ENERGY;
-                }
-                else
-                    cout << endl << "Вам не хватает энергии для атаки " << psecond.ATTACKS[2].ATCK_NAME;
-
-                
-                cout << endl << "Введите \"4\" для того чтобы пропустить ход" << endl;
-
-
-                
-
-                input_check(attack_id);
-
-                switch (attack_id)
-                {
-                case 1:
-                {
-                    /*int attack_damage = psecond.ATTACKS.ATTACK_1.DAMAGE - pfirst.STATS.DEFENCE;
-                    if (attack_damage >= 0)
-                        pfirst.STATS.HEALTH -= attack_damage;
-                    break;*/
-                    
-                    int attack_damage = (first_weak * psecond.ATTACKS[0].DAMAGE) - pfirst.STATS.DEFENCE;
-                    second_energy -= psecond.ATTACKS[0].ENERGY;
-                    if (attack_damage >= 0)
-                        pfirst.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                case 2:
-                {
-                    int attack_damage = (first_weak * psecond.ATTACKS[1].DAMAGE) - pfirst.STATS.DEFENCE;
-                    second_energy -= psecond.ATTACKS[1].ENERGY;
-                    if (attack_damage >= 0)
-                        pfirst.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                case 3:
-                {
-                    int attack_damage = (first_weak * psecond.ATTACKS[2].DAMAGE) - pfirst.STATS.DEFENCE;
-                    second_energy -= psecond.ATTACKS[2].ENERGY;
-                    if (attack_damage >= 0)
-                        pfirst.STATS.HEALTH -= attack_damage;
-                    break;
-                }
-                default:
-                    break;
-                }
-
-                if (pfirst.STATS.HEALTH <= 0)
-                {
-                    cout << psecond.NAME << " Побеждает";
-                    break;
-                }
-                else if (psecond.STATS.HEALTH <= 0)
-                {
-                    cout << pfirst.NAME << " Побеждает";
-                    break;
-                }
-
-                /*if (psecond.STATS.HEALTH <= 0)
-                {
-                    cout << psecond.NAME << " Побеждает";
-                    break;
-                }*/
-
-                fta++;
-                second_energy += 5;
-                if (second_energy > 50)
-                    second_energy = 50;
-
-                cout << "Конец хода. Теперь ходит " << pfirst.NAME << endl;
-            }
-            round++;
-        }
-    }
 };
 
+struct poke_space
+{
+    int count_pokes = 0;
+    Pokemon* Parsed_pokes;
+
+
+    Pokemon** Pokes_ptr;
+    int pokes_size = 0;
+
+    void expand_pokes( Pokemon**&Pokes_ptr, int& size )
+    {
+        if (size == 0)
+        {
+            Pokes_ptr = new Pokemon*;
+            Pokes_ptr[0] = nullptr;
+            pokes_size = 1;
+        }
+        else if( Pokes_ptr != nullptr)
+        {
+            int new_size = ++size;
+            Pokemon** tmp = new Pokemon * [new_size];
+            for (int i = 0; i < size ; ++i)
+            {
+                tmp[i] = Pokes_ptr[i];
+            }
+            for (int j = size; j < new_size; ++j)
+            {
+                tmp[j] = nullptr;
+            }
+            delete[] Pokes_ptr;
+            Pokes_ptr = tmp;
+            size = new_size;
+            tmp = nullptr;
+        }
+    }
+
+    void pb(Pokemon* pokemon, int &pokes_size)
+    {
+        expand_pokes(Pokes_ptr, pokes_size);
+        Pokes_ptr[0] = pokemon;
+    }
+
+    void pb_all(Pokemon* pokemons, int& pokes_size, int &count_pokes)
+    {
+        while (pokes_size < count_pokes)
+        {
+            expand_pokes(Pokes_ptr, pokes_size);
+        }
+
+        for (int i = 0; i < count_pokes; ++i)
+        {
+            //Pokemon* temp = &pokemons[i];
+            this->Pokes_ptr[i] = &pokemons[i];
+
+            //pokemons[i];
+        }
+    }
+
+
+};
+
+//int first_to_attack()
 void fight(Pokemon pfirst, Pokemon psecond)
 {
     cout << "Бой начался между: " << pfirst.NAME << " и " << psecond.NAME << endl;
@@ -494,6 +281,7 @@ void fight(Pokemon pfirst, Pokemon psecond)
 
         else
         {
+            // изменять поинтеры
             int attack_id;
             string fname = pfirst.NAME;
             string sname = psecond.NAME;
@@ -534,6 +322,7 @@ void fight(Pokemon pfirst, Pokemon psecond)
 
             input_check(attack_id);
 
+            // переделать на массив
             switch (attack_id)
             {
             case 1:
@@ -626,11 +415,10 @@ vector<string> myFunc(string myString)
     return traits;
 }
 
-
-Pokemon* parse_pokemons()
+Pokemon* parse_pokemons(int&count_pokes)
 {
     std::ifstream file;
-    file.open("D:\\Mess\\source\\pokeman\\pokeman\\inn.txt");
+    file.open("Text.txt");
     
     if (file.is_open())
     {
@@ -640,12 +428,13 @@ Pokemon* parse_pokemons()
         {
             k++;
         }
+        count_pokes = k;
         //cout << k;
         
         file.close();
 
         
-        file.open("D:\\Mess\\source\\pokeman\\pokeman\\inn.txt");
+        file.open("Text.txt");
 
         if (file.is_open())
         {
@@ -709,61 +498,13 @@ int main()
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-    Pokemon* pokemon_db = parse_pokemons();
-    //cout << " " << pokemon_db[0].NAME << " " << pokemon_db[0].TYPE << " " << pokemon_db[0].STATS.WEAKNESS;
-    if (pokemon_db != nullptr)
-        fight(pokemon_db[0], pokemon_db[1]);
-    else
-        cout << "Ошибка!";
 
-    //if (infile.is_open())
-    //{
-    //    Pokemon* Bulba = new Pokemon;
-    //    Pokemon* Aboba = new Pokemon;
-    //    int type_f, type_s, weak_f, weak_s;
+    poke_space Pokemon_db;
 
-    //    infile >> Bulba->ID;
-    //    infile >> Bulba->NAME;
-    //    infile >> type_f;
-    //    Bulba->TYPE = pokemon_type(type_f);
-    //    infile >> Bulba->STATS.HEALTH;
-    //    infile >> Bulba->STATS.DEFENCE;
-    //    infile >> weak_f;
-    //    Bulba->STATS.WEAKNESS = pokemon_type(weak_f);
-    //    infile >> Bulba->STATS.SPEED;
-    //    for (int i = 0; i < 3; i++)
-    //    {
-    //        infile >> Bulba->ATTACKS[i].ATCK_NAME >> Bulba->ATTACKS[i].DAMAGE >> Bulba->ATTACKS[i].ENERGY;
-    //    }
-    //    
+    Pokemon_db.Parsed_pokes = parse_pokemons(Pokemon_db.count_pokes);
 
-    //    infile >> Aboba->ID;
-    //    infile >> Aboba->NAME;
-    //    infile >> type_s;
-    //    Aboba->TYPE = pokemon_type(type_s);
-    //    infile >> Aboba->STATS.HEALTH;
-    //    infile >> Aboba->STATS.DEFENCE;
-    //    infile >> weak_s;
-    //    Aboba->STATS.WEAKNESS = pokemon_type(weak_s);
-    //    infile >> Aboba->STATS.SPEED;
-    //    for (int i = 0; i < 3; i++)
-    //    {
-    //        infile >> Aboba->ATTACKS[i].ATCK_NAME >> Aboba->ATTACKS[i].DAMAGE >> Aboba->ATTACKS[i].ENERGY;
-    //    }
-    //    //Bulba->fight(*Bulba, *Aboba);
-    //}
-    //else
-    //{
-    //    cout << "File did not open";
-    //}
+    Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, Pokemon_db.pokes_size, Pokemon_db.count_pokes);
 
-    ////vector<string> test;
-    //////string testt = "Aboba 123 zavr";
-    ////test = myFunc("Aboba 123 zavr");
-    ////for (string x : test)
-    ////{
-    ////    cout << x;
-    ////}
-    
+    fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[1]));
 }
 
