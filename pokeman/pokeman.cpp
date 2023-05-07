@@ -119,7 +119,7 @@ Pokemon* parse_pokemons(int& count_pokes)
         for (string line; getline(file, line);++for_i)
         {
             l++;
-            if (line == "" || (line[0] - '0' > 9))
+            if (line == "" || line.length() < 10 || (line[0] - '0' > 9))
             {
                 //cout << "yes";
                 fails.push_back(0);
