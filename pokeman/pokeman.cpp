@@ -28,7 +28,7 @@ enum pokemon_type {
 };
 
 //[min, max]
-void input_check( int&input_var , bool* check_mas, const int min, const int max)
+void fight_input_check( int&input_var , bool* check_mas, const int min, const int max)
 {
     cin >> input_var;
     while (cin.fail() || input_var > max || input_var < min || !check_mas[input_var-1] || (input_var != 1 && input_var != 2 && input_var != 3 && input_var != 4)) // проблема 1/2
@@ -236,8 +236,8 @@ struct poke_space
         cout << endl;
 
         cout << "Покемонов прочитано из файла: " << count_pokes << endl;
-        cout << "Покемонов сейчас в основном массиве" << real_pokes_size << endl;
-        cout << "Размер выделенной памяти под массив" << pokes_size << endl;
+        cout << "Покемонов сейчас в основном массиве " << real_pokes_size << endl;
+        cout << "Размер выделенной памяти под массив " << pokes_size << endl;
         cout << "\n";
     }
 
@@ -578,11 +578,6 @@ struct poke_space
 //}
 
 
-
-
-
-
-
 void fight(Pokemon* pfirstt, Pokemon* psecondd)
 {
     Pokemon** pfirst = new Pokemon*;
@@ -610,8 +605,6 @@ void fight(Pokemon* pfirstt, Pokemon* psecondd)
         cout << "Первым атакует " << (*pfirst)->NAME << endl;
 
     int round = 1;
-
-    //int first_weak = 1, second_weak = 1;
 
     if ((*pfirst)->STATS.WEAKNESS == (*psecond)->TYPE)
     {
@@ -693,7 +686,7 @@ void fight(Pokemon* pfirstt, Pokemon* psecondd)
         
 
 
-        input_check(attack_id, attacks_energy_check, 1, (*pfirst)->attacks_size+1);
+        fight_input_check(attack_id, attacks_energy_check, 1, (*pfirst)->attacks_size+1);
 
         int second_weak = ((*pfirst)->for_fight.weak + 1);
 
@@ -743,6 +736,12 @@ void fight(Pokemon* pfirstt, Pokemon* psecondd)
 
     (*pfirst)->STATS.HEALTH = (*pfirst)->STATS.HEALTH_COPY;
     (*psecond)->STATS.HEALTH = (*psecond)->STATS.HEALTH_COPY;
+
+    (*pfirst)->for_fight.energy = 50;
+    (*psecond)->for_fight.energy = 50;
+
+    (*pfirst)->for_fight.weak = false;
+    (*psecond)->for_fight.weak = false;
 }
 
 
@@ -776,7 +775,7 @@ int main()
     Pokemon_db.out_pokes();
     //fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size-1]));
 
-    fight(Pokemon_db.Pokes_ptr[0], Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size - 1]);
+    //fight(Pokemon_db.Pokes_ptr[0], Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size - 1]);
 
     cout << "\n\n";
     Pokemon_db.check_pokes();
