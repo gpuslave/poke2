@@ -1,7 +1,7 @@
-1 Mew Psychic 15 2 Ghost 2 first 3 5 second 10 25 third 5 10
+1 Mew Psychic 25 2 Ghost 3 first 3 5 second 10 25 third 5 10
 
-2 Gengar Ghost 10 2 Ghost 2 first 3 5 second 10 25 third 5 10
+2 Gengar Ghost 30 2 Ghost 2 first 3 5 second 10 25 third 5 10
 
-3 Lucario Fighting 13 2 Psychic 2 first 3 5 second 10 25 third 5 10
+3 Lucario Fighting 23 2 Psychic 2 first 3 5 second 10 25 third 5 10
 
-4 Charizard Fire 11 2 Water 2 first 3 5 second 10 25 third 5 10
+4 Charizard Fire 25 2 Water 2 first 3 5 second 10 25 third 5 10
