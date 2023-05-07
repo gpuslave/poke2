@@ -156,13 +156,14 @@ Pokemon* parse_pokemons(int& count_pokes)
 
         file.close();
 
+        if (k == 0)
+            return nullptr;
+
         file.open("Text.txt");
 
         if (file.is_open())
         {
             Pokemon* poke_temp = new Pokemon[k];
-
-
 
             for (int i = 0, j = 0; i < l; ++i)
             {
@@ -235,10 +236,39 @@ struct poke_space
         }
         cout << endl;
 
+        
+    }
+
+    poke_space()
+    {
+        Parsed_pokes = parse_pokemons(count_pokes);
+
+        while (pokes_size < count_pokes)
+        {
+            expand_pokes();
+        }
+
+        for (int i = real_pokes_size; i < count_pokes; ++i)
+        {
+            Pokes_ptr[i] = &Parsed_pokes[i];
+            ++real_pokes_size;
+        }
+
         cout << "Покемонов прочитано из файла: " << count_pokes << endl;
         cout << "Покемонов сейчас в основном массиве " << real_pokes_size << endl;
         cout << "Размер выделенной памяти под массив " << pokes_size << endl;
         cout << "\n";
+    }
+
+    ~poke_space()
+    {
+        if (count_pokes > 1)
+            delete[] Parsed_pokes;
+        
+        if (count_pokes == 1)
+            delete Parsed_pokes;
+        
+        delete Pokes_ptr;
     }
 
     void check_pokes()
@@ -302,23 +332,178 @@ struct poke_space
 
     }
 
-    poke_space()
+    void fight(Pokemon* pfirstt, Pokemon* psecondd, bool tournament)
     {
-        Parsed_pokes = parse_pokemons(count_pokes);
-
-        while (pokes_size < count_pokes)
+        if (!tournament)
         {
-            expand_pokes();
+            cout << "Выберите двух покемонов";
+        }
+        
+
+        Pokemon** pfirst = new Pokemon*;
+        *pfirst = pfirstt;
+
+        Pokemon** psecond = new Pokemon*;
+        *psecond = psecondd;
+
+        cout << "Бой начался между: " << (*pfirst)->NAME << " и " << (*psecond)->NAME << endl;
+
+        int fta = 0;
+
+        if ((*pfirst)->STATS.SPEED > (*psecond)->STATS.SPEED)
+            fta = 0;
+        else if ((*pfirst)->STATS.SPEED == (*psecond)->STATS.SPEED)
+            fta = rand() % 2;
+        else
+            fta = 1;
+
+        //cout << "\n" << fta << "\n";
+
+        if (fta)
+            cout << "Первым атакует " << (*psecond)->NAME << endl;
+        else
+            cout << "Первым атакует " << (*pfirst)->NAME << endl;
+
+        int round = 1;
+
+        if ((*pfirst)->STATS.WEAKNESS == (*psecond)->TYPE)
+        {
+            (*pfirst)->for_fight.weak = true;
+        }
+        else
+            (*pfirst)->for_fight.weak = false;
+
+        if ((*pfirst)->TYPE == (*psecond)->STATS.WEAKNESS)
+        {
+            (*psecond)->for_fight.weak = true;
+        }
+        else
+            (*psecond)->for_fight.weak = false;
+
+        if (fta)
+            swap(pfirst, psecond);
+
+        while (true)
+        {
+            cout << "Раунд: " << round << " Характеристики покемонов: " <<
+                (*pfirst)->NAME << " здоровье - " << (*pfirst)->STATS.HEALTH << " Энергия - " << (*pfirst)->for_fight.energy <<
+                "   " << (*psecond)->NAME << " здоровье - " << (*psecond)->STATS.HEALTH << " Энергия - " << (*psecond)->for_fight.energy;
+            cout << "\n";
+
+            string fname, sname;
+
+            int attack_id;
+
+            fname = (*pfirst)->NAME;
+            sname = (*psecond)->NAME;
+
+
+            cout << "Выберите атаку против " << (*psecond)->NAME;
+
+            if ((*psecond)->for_fight.weak)
+                cout << "\nПокемон " << sname << " слаб против аттак " << fname;
+
+
+            /*auto list_attacks = [](Pokemon** pfirst, Pokemon** psecond, int i) {
+
+                if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
+                {
+                    cout << endl << "Введите \" << i <<\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
+                        << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
+                }
+                else
+                    cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
+
+                return 0;
+            };
+
+            for (int i = 0; i < (*pfirst)->attacks_size; i++)
+            {
+                list_attacks(pfirst, psecond, i);
+            }*/
+
+            bool attacks_energy_check[(*pfirst)->attacks_size]{ 0, 0, 0 };
+            for (int i = 0; i <= (*pfirst)->attacks_size; ++i)
+            {
+                if ((*pfirst)->attacks_size == i)
+                {
+                    cout << endl << "Введите \"" << i + 1 << "\" для того чтобы пропустить ход" << endl;
+                    break;
+                }
+
+                if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
+                {
+                    cout << endl << "Введите \"" << i + 1 << "\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
+                        << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
+                    attacks_energy_check[i] = true;
+                }
+                else
+                {
+                    cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
+                    attacks_energy_check[i] = false;
+                }
+            }
+
+
+
+            fight_input_check(attack_id, attacks_energy_check, 1, (*pfirst)->attacks_size + 1);
+
+            int second_weak = ((*pfirst)->for_fight.weak + 1);
+
+            for (int i = 0; i < (*pfirst)->attacks_size; ++i)
+            {
+                if ((attack_id - 1) == (*pfirst)->attacks_size)
+                {
+                    (*pfirst)->for_fight.energy += 5;
+                    if ((*pfirst)->for_fight.energy > 50)
+                        (*pfirst)->for_fight.energy = 50;
+                    break;
+                }
+
+                if (i == (attack_id - 1))
+                {
+                    int attack_damage = (second_weak * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE;
+                    (*pfirst)->for_fight.energy -= (*pfirst)->ATTACKS[i].ENERGY;
+                    if (attack_damage >= 0)
+                        (*psecond)->STATS.HEALTH -= attack_damage;
+
+                    break;
+                }
+            }
+
+            (*psecond)->for_fight.energy += 5;
+            if ((*psecond)->for_fight.energy > 50)
+                (*psecond)->for_fight.energy = 50;
+
+            if ((*pfirst)->STATS.HEALTH <= 0)
+            {
+                cout << (*psecond)->NAME << " Побеждает";
+                break;
+            }
+            else if ((*psecond)->STATS.HEALTH <= 0)
+            {
+                cout << (*pfirst)->NAME << " Побеждает";
+                break;
+            }
+
+
+
+            cout << "Конец хода. Теперь ходит " << (*psecond)->NAME << endl;
+
+            swap(pfirst, psecond);
+            round++;
         }
 
-        for (int i = real_pokes_size; i < count_pokes; ++i)
-        {
-            Pokes_ptr[i] = &Parsed_pokes[i];
-            ++real_pokes_size;
-        }
+        (*pfirst)->STATS.HEALTH = (*pfirst)->STATS.HEALTH_COPY;
+        (*psecond)->STATS.HEALTH = (*psecond)->STATS.HEALTH_COPY;
+
+        (*pfirst)->for_fight.energy = 50;
+        (*psecond)->for_fight.energy = 50;
+
+        (*pfirst)->for_fight.weak = false;
+        (*psecond)->for_fight.weak = false;
 
     }
-
 };
 
 //int first_to_attack()
@@ -578,171 +763,172 @@ struct poke_space
 //}
 
 
-void fight(Pokemon* pfirstt, Pokemon* psecondd)
-{
-    Pokemon** pfirst = new Pokemon*;
-    *pfirst = pfirstt;
-
-    Pokemon** psecond = new Pokemon*;
-    *psecond = psecondd;
-
-    cout << "Бой начался между: " << (*pfirst)->NAME << " и " << (*psecond)->NAME << endl;
-
-    int fta = 0;
-
-    if ((*pfirst)->STATS.SPEED > (*psecond)->STATS.SPEED)
-        fta = 0;
-    else if ((*pfirst)->STATS.SPEED == (*psecond)->STATS.SPEED)
-        fta = rand() % 2;
-    else
-        fta = 1;
-
-    //cout << "\n" << fta << "\n";
-
-    if (fta)
-        cout << "Первым атакует " << (*psecond)->NAME << endl;
-    else
-        cout << "Первым атакует " << (*pfirst)->NAME << endl;
-
-    int round = 1;
-
-    if ((*pfirst)->STATS.WEAKNESS == (*psecond)->TYPE)
-    {
-        (*pfirst)->for_fight.weak = true;
-    }
-    else
-        (*pfirst)->for_fight.weak = false;
-
-    if ((*pfirst)->TYPE == (*psecond)->STATS.WEAKNESS)
-    {
-        (*psecond)->for_fight.weak = true;
-    }
-    else
-        (*psecond)->for_fight.weak = false;
-
-    if (fta)
-        swap(pfirst, psecond);
-
-    while (true)
-    {
-        cout << "Раунд: " << round << " Характеристики покемонов: " <<
-            (*pfirst)->NAME << " здоровье - " << (*pfirst)->STATS.HEALTH << " Энергия - " << (*pfirst)->for_fight.energy <<
-            "   " << (*psecond)->NAME << " здоровье - " << (*psecond)->STATS.HEALTH << " Энергия - " << (*psecond)->for_fight.energy;
-        cout << "\n";
-
-        string fname, sname;
-
-        int attack_id;
-
-        fname = (*pfirst)->NAME;
-        sname = (*psecond)->NAME;
-        
-        
-        cout << "Выберите атаку против " << (*psecond)->NAME;
-
-        if ((*psecond)->for_fight.weak)
-            cout << "\nПокемон " << sname << " слаб против аттак " << fname;
-
-
-        /*auto list_attacks = [](Pokemon** pfirst, Pokemon** psecond, int i) {
-
-            if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
-            {
-                cout << endl << "Введите \" << i <<\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
-                    << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
-            }
-            else
-                cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
-
-            return 0;
-        };
-
-        for (int i = 0; i < (*pfirst)->attacks_size; i++)
-        {
-            list_attacks(pfirst, psecond, i);
-        }*/
-
-        bool attacks_energy_check[(*pfirst)->attacks_size] { 0, 0, 0 };
-        for (int i = 0; i <= (*pfirst)->attacks_size; ++i)
-        {
-            if ((*pfirst)->attacks_size == i)
-            {
-                cout << endl << "Введите \"" << i+1 <<"\" для того чтобы пропустить ход" << endl;
-                break;
-            }
-
-            if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
-            {
-                cout << endl << "Введите \"" << i+1 << "\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
-                    << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
-                attacks_energy_check[i] = true;
-            }
-            else
-            {
-                cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
-                attacks_energy_check[i] = false;
-            }
-        }
-        
-
-
-        fight_input_check(attack_id, attacks_energy_check, 1, (*pfirst)->attacks_size+1);
-
-        int second_weak = ((*pfirst)->for_fight.weak + 1);
-
-        for (int i = 0; i < (*pfirst)->attacks_size; ++i)
-        {
-            if ((attack_id - 1) == (*pfirst)->attacks_size)
-            {
-                (*pfirst)->for_fight.energy += 5;
-                if ((*pfirst)->for_fight.energy > 50)
-                    (*pfirst)->for_fight.energy = 50;
-                break;
-            }
-
-            if (i == (attack_id - 1))
-            {
-                int attack_damage = (second_weak * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE;
-                (*pfirst)->for_fight.energy -= (*pfirst)->ATTACKS[i].ENERGY;
-                if (attack_damage >= 0)
-                    (*psecond)->STATS.HEALTH -= attack_damage;
-
-                break;
-            }
-        }
-
-        (*psecond)->for_fight.energy += 5;
-        if ((*psecond)->for_fight.energy > 50)
-            (*psecond)->for_fight.energy = 50;
-
-        if ((*pfirst)->STATS.HEALTH <= 0)
-        {
-            cout << (*psecond)->NAME << " Побеждает";
-            break;
-        }
-        else if ((*psecond)->STATS.HEALTH <= 0)
-        {
-            cout << (*pfirst)->NAME << " Побеждает";
-            break;
-        }
-
-        
-
-        cout << "Конец хода. Теперь ходит " << (*psecond)->NAME << endl;
-        
-        swap(pfirst, psecond);
-        round++;
-    }
-
-    (*pfirst)->STATS.HEALTH = (*pfirst)->STATS.HEALTH_COPY;
-    (*psecond)->STATS.HEALTH = (*psecond)->STATS.HEALTH_COPY;
-
-    (*pfirst)->for_fight.energy = 50;
-    (*psecond)->for_fight.energy = 50;
-
-    (*pfirst)->for_fight.weak = false;
-    (*psecond)->for_fight.weak = false;
-}
+//void fight(Pokemon* pfirstt, Pokemon* psecondd)
+//{
+//    Pokemon** pfirst = new Pokemon*;
+//    *pfirst = pfirstt;
+//
+//    Pokemon** psecond = new Pokemon*;
+//    *psecond = psecondd;
+//
+//    cout << "Бой начался между: " << (*pfirst)->NAME << " и " << (*psecond)->NAME << endl;
+//
+//    int fta = 0;
+//
+//    if ((*pfirst)->STATS.SPEED > (*psecond)->STATS.SPEED)
+//        fta = 0;
+//    else if ((*pfirst)->STATS.SPEED == (*psecond)->STATS.SPEED)
+//        fta = rand() % 2;
+//    else
+//        fta = 1;
+//
+//    //cout << "\n" << fta << "\n";
+//
+//    if (fta)
+//        cout << "Первым атакует " << (*psecond)->NAME << endl;
+//    else
+//        cout << "Первым атакует " << (*pfirst)->NAME << endl;
+//
+//    int round = 1;
+//
+//    if ((*pfirst)->STATS.WEAKNESS == (*psecond)->TYPE)
+//    {
+//        (*pfirst)->for_fight.weak = true;
+//    }
+//    else
+//        (*pfirst)->for_fight.weak = false;
+//
+//    if ((*pfirst)->TYPE == (*psecond)->STATS.WEAKNESS)
+//    {
+//        (*psecond)->for_fight.weak = true;
+//    }
+//    else
+//        (*psecond)->for_fight.weak = false;
+//
+//    if (fta)
+//        swap(pfirst, psecond);
+//
+//    while (true)
+//    {
+//        cout << "Раунд: " << round << " Характеристики покемонов: " <<
+//            (*pfirst)->NAME << " здоровье - " << (*pfirst)->STATS.HEALTH << " Энергия - " << (*pfirst)->for_fight.energy <<
+//            "   " << (*psecond)->NAME << " здоровье - " << (*psecond)->STATS.HEALTH << " Энергия - " << (*psecond)->for_fight.energy;
+//        cout << "\n";
+//
+//        string fname, sname;
+//
+//        int attack_id;
+//
+//        fname = (*pfirst)->NAME;
+//        sname = (*psecond)->NAME;
+//        
+//        
+//        cout << "Выберите атаку против " << (*psecond)->NAME;
+//
+//        if ((*psecond)->for_fight.weak)
+//            cout << "\nПокемон " << sname << " слаб против аттак " << fname;
+//
+//
+//        /*auto list_attacks = [](Pokemon** pfirst, Pokemon** psecond, int i) {
+//
+//            if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
+//            {
+//                cout << endl << "Введите \" << i <<\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
+//                    << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
+//            }
+//            else
+//                cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
+//
+//            return 0;
+//        };
+//
+//        for (int i = 0; i < (*pfirst)->attacks_size; i++)
+//        {
+//            list_attacks(pfirst, psecond, i);
+//        }*/
+//
+//        bool attacks_energy_check[(*pfirst)->attacks_size] { 0, 0, 0 };
+//        for (int i = 0; i <= (*pfirst)->attacks_size; ++i)
+//        {
+//            if ((*pfirst)->attacks_size == i)
+//            {
+//                cout << endl << "Введите \"" << i+1 <<"\" для того чтобы пропустить ход" << endl;
+//                break;
+//            }
+//
+//            if ((*pfirst)->ATTACKS[i].ENERGY - (*pfirst)->for_fight.energy <= 0)
+//            {
+//                cout << endl << "Введите \"" << i+1 << "\" для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME
+//                    << " она нанесет " << (((*pfirst)->for_fight.weak + 1) * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE << " и затратит " << (*pfirst)->ATTACKS[i].ENERGY;
+//                attacks_energy_check[i] = true;
+//            }
+//            else
+//            {
+//                cout << endl << "Вам не хватает энергии для атаки " << (*pfirst)->ATTACKS[i].ATCK_NAME;
+//                attacks_energy_check[i] = false;
+//            }
+//        }
+//        
+//
+//
+//        fight_input_check(attack_id, attacks_energy_check, 1, (*pfirst)->attacks_size+1);
+//
+//        int second_weak = ((*pfirst)->for_fight.weak + 1);
+//
+//        for (int i = 0; i < (*pfirst)->attacks_size; ++i)
+//        {
+//            if ((attack_id - 1) == (*pfirst)->attacks_size)
+//            {
+//                (*pfirst)->for_fight.energy += 5;
+//                if ((*pfirst)->for_fight.energy > 50)
+//                    (*pfirst)->for_fight.energy = 50;
+//                break;
+//            }
+//
+//            if (i == (attack_id - 1))
+//            {
+//                int attack_damage = (second_weak * (*pfirst)->ATTACKS[i].DAMAGE) - (*psecond)->STATS.DEFENCE;
+//                (*pfirst)->for_fight.energy -= (*pfirst)->ATTACKS[i].ENERGY;
+//                if (attack_damage >= 0)
+//                    (*psecond)->STATS.HEALTH -= attack_damage;
+//
+//                break;
+//            }
+//        }
+//
+//        (*psecond)->for_fight.energy += 5;
+//        if ((*psecond)->for_fight.energy > 50)
+//            (*psecond)->for_fight.energy = 50;
+//
+//        if ((*pfirst)->STATS.HEALTH <= 0)
+//        {
+//            cout << (*psecond)->NAME << " Побеждает";
+//            break;
+//        }
+//        else if ((*psecond)->STATS.HEALTH <= 0)
+//        {
+//            cout << (*pfirst)->NAME << " Побеждает";
+//            break;
+//        }
+//
+//        
+//
+//        cout << "Конец хода. Теперь ходит " << (*psecond)->NAME << endl;
+//        
+//        swap(pfirst, psecond);
+//        round++;
+//    }
+//
+//    (*pfirst)->STATS.HEALTH = (*pfirst)->STATS.HEALTH_COPY;
+//    (*psecond)->STATS.HEALTH = (*psecond)->STATS.HEALTH_COPY;
+//
+//    (*pfirst)->for_fight.energy = 50;
+//    (*psecond)->for_fight.energy = 50;
+//
+//    (*pfirst)->for_fight.weak = false;
+//    (*psecond)->for_fight.weak = false;
+//
+//}
 
 
 //std::ostream& operator << (std::ostream& os, Pokemon& poke)
@@ -772,12 +958,14 @@ int main()
     Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, Pokemon_db.count_pokes);*/
 
 
-    Pokemon_db.out_pokes();
-    //fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size-1]));
 
-    //fight(Pokemon_db.Pokes_ptr[0], Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size - 1]);
+    Pokemon_db.out_pokes();
+    //fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size-1]), false);
+
+    Pokemon_db.fight(Pokemon_db.Pokes_ptr[0], Pokemon_db.Pokes_ptr[Pokemon_db.real_pokes_size - 1], false);
 
     cout << "\n\n";
     Pokemon_db.check_pokes();
+    system("pause");
 }
 
