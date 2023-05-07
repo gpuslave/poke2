@@ -1,2 +1,5 @@
 1 ABOBA FIRE 15 2 NORMAL 2 first 3 5 second 10 25 third 5 10
-2 ZOV WATER 15 2 NORMAL 2 first 3 5 second 10 25 third 5 10
+2 ZOV WATER 10 2 NORMAL 2 first 3 5 second 10 25 third 5 10
+3 LOX WATER 13 2 NORMAL 2 first 3 5 second 10 25 third 5 10
+4 COCK WATER 11 2 NORMAL 2 first 3 5 second 10 25 third 5 10
+5 COCK WATER 11 2 NORMAL 2 first 3 5 second 10 25 third 5 10

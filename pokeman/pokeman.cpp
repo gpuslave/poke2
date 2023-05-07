@@ -14,6 +14,8 @@ using std::endl;
 using std::vector;
 using std::string;
 using std::getline;
+using std::ifstream;
+using std::ofstream;
 
 enum pokemon_type {
     NORMAL, FIRE, WATER, ELECTRIC, GRASS,
@@ -37,7 +39,7 @@ void input_check( int&input_var )
 
 pokemon_type parse_string_to_pok_type(string temp)
 {
-    std::vector<string> mas{"NORMAL", "FIRE", "WATER", "ELECTRIC", "GRASS", "ICE", "FIGHTING", "POISON", "GROUND", "FLYING", "PSYCHIC", "BUG", "ROCK", "GHOST", "DRAGON", "DARK", "STEEL", "FAIRY"};
+    vector<string> mas{"NORMAL", "FIRE", "WATER", "ELECTRIC", "GRASS", "ICE", "FIGHTING", "POISON", "GROUND", "FLYING", "PSYCHIC", "BUG", "ROCK", "GHOST", "DRAGON", "DARK", "STEEL", "FAIRY"};
 
     for (int i = 0; i < mas.size() ; ++i)
     {
@@ -47,6 +49,34 @@ pokemon_type parse_string_to_pok_type(string temp)
     return pokemon_type(0);
 }
 
+vector<string> myFunc(string myString)
+{
+    vector<string> traits;
+
+    string SubString;
+    for (int i = 0; i < myString.size(); i++)
+    {
+        char x = myString[i];
+        if (x != ' ')
+        {
+            if ((i + 1) == myString.size())
+            {
+                SubString.push_back(x);
+                traits.push_back(SubString);
+                SubString.clear();
+
+            }
+
+            SubString.push_back(x);
+        }
+        else if (x == ' ')
+        {
+            traits.push_back(SubString);
+            SubString.clear();
+        }
+    }
+    return traits;
+}
 
 struct Pokemon
 {
@@ -70,6 +100,93 @@ struct Pokemon
     }ATTACKS[3];
 };
 
+Pokemon* parse_pokemons(int& count_pokes)
+{
+    ifstream file;
+    file.open("Text.txt");
+
+    if (file.is_open())
+    {
+        string temp;
+        int k = 0, l = 0;
+        vector<bool> fails;
+        int for_i=0;
+        for (string line; getline(file, line);++for_i)
+        {
+            l++;
+            if (line == "" || (line[0] - '0' > 9))
+            {
+                //cout << "yes";
+                fails.push_back(0);
+                continue;
+            }
+            k++;
+            fails.push_back(1);
+        }
+        count_pokes = k;
+        //cout << k;
+
+        file.close();
+
+        file.open("Text.txt");
+
+        if (file.is_open())
+        {
+            Pokemon* poke_temp = new Pokemon[k];
+
+
+
+            for (int i = 0, j = 0; i < l; ++i)
+            {
+                //temp.clear();
+                getline(file, temp);
+                vector<string> traits = myFunc(temp);
+                if (fails[i] == false)
+                    continue;
+                //for (string a : traits)
+                //{
+                //    //cout << a;
+                //}
+
+                poke_temp[j].ID = std::stoi(traits[0]);
+                poke_temp[j].NAME = traits[1];
+                poke_temp[j].TYPE = parse_string_to_pok_type(traits[2]);
+                poke_temp[j].STATS.HEALTH = std::stoi(traits[3]);
+                poke_temp[j].STATS.DEFENCE = std::stoi(traits[4]);
+                poke_temp[j].STATS.WEAKNESS = parse_string_to_pok_type(traits[5]);
+                poke_temp[j].STATS.SPEED = std::stoi(traits[6]);
+
+                poke_temp[j].ATTACKS[0].ATCK_NAME = traits[7];
+                poke_temp[j].ATTACKS[0].DAMAGE = std::stoi(traits[8]);
+                poke_temp[j].ATTACKS[0].ENERGY = std::stoi(traits[9]);
+
+                poke_temp[j].ATTACKS[1].ATCK_NAME = traits[10];
+                poke_temp[j].ATTACKS[1].DAMAGE = std::stoi(traits[11]);
+                poke_temp[j].ATTACKS[1].ENERGY = std::stoi(traits[12]);
+
+                poke_temp[j].ATTACKS[2].ATCK_NAME = traits[13];
+                poke_temp[j].ATTACKS[2].DAMAGE = std::stoi(traits[14]);
+                poke_temp[j].ATTACKS[2].ENERGY = std::stoi(traits[15]);
+                j++;
+            }
+
+            return poke_temp;
+        }
+        else
+        {
+            cout << "File didnt open";
+            file.close();
+            return nullptr;
+        }
+    }
+    else
+    {
+        cout << "File didnt open";
+        file.close();
+        return nullptr;
+    }
+}
+
 struct poke_space
 {
     int count_pokes = 0;
@@ -78,10 +195,24 @@ struct poke_space
 
     Pokemon** Pokes_ptr;
     int pokes_size = 0;
+    int real_pokes_size = 0;
 
-    void expand_pokes( Pokemon**&Pokes_ptr, int& size )
+    void out_pokes()
     {
-        if (size == 0)
+        for (int i = 0; i < real_pokes_size; i++)
+        {
+            cout << Pokes_ptr[i]->NAME << "(" << Pokes_ptr[i]->ID << ") ";
+        }
+        cout << endl;
+
+        cout << "Покемонов прочитано из файла: " << count_pokes << endl;
+        cout << "Покемонов сейчас в основном массиве" << real_pokes_size << endl;
+        cout << "Размер выделенной памяти под массив" << pokes_size << endl;
+    }
+
+    void expand_pokes()
+    {
+        if (pokes_size == 0)
         {
             Pokes_ptr = new Pokemon*;
             Pokes_ptr[0] = nullptr;
@@ -89,45 +220,65 @@ struct poke_space
         }
         else if( Pokes_ptr != nullptr)
         {
-            int new_size = ++size;
+            int new_size = ++pokes_size;
             Pokemon** tmp = new Pokemon * [new_size];
-            for (int i = 0; i < size ; ++i)
+            for (int i = 0; i < pokes_size ; ++i)
             {
                 tmp[i] = Pokes_ptr[i];
             }
-            for (int j = size; j < new_size; ++j)
+            for (int j = pokes_size; j < new_size; ++j)
             {
                 tmp[j] = nullptr;
             }
             delete[] Pokes_ptr;
             Pokes_ptr = tmp;
-            size = new_size;
+            pokes_size = new_size;
             tmp = nullptr;
         }
     }
 
-    void pb(Pokemon* pokemon, int &pokes_size)
+    void pb(Pokemon* pokemon)
     {
-        expand_pokes(Pokes_ptr, pokes_size);
-        Pokes_ptr[0] = pokemon;
+        expand_pokes();
+        Pokes_ptr[real_pokes_size++] = pokemon;
     }
 
-    void pb_all(Pokemon* pokemons, int& pokes_size, int &count_pokes)
+    void pb(Pokemon pokemon)
     {
+        expand_pokes();
+        Pokes_ptr[real_pokes_size++] = &pokemon;
+    }
+    
+    void pb_all(Pokemon* Pokemons, const int size)
+    {
+        while (pokes_size - real_pokes_size < size)
+        {
+            expand_pokes();
+        }
+
+        for (int i = 0; i < size; ++i)
+        {
+            Pokes_ptr[real_pokes_size++] = &Pokemons[i];
+        }
+
+    }
+
+    poke_space()
+    {
+        Parsed_pokes = parse_pokemons(count_pokes);
+
         while (pokes_size < count_pokes)
         {
-            expand_pokes(Pokes_ptr, pokes_size);
+            expand_pokes();
         }
 
-        for (int i = 0; i < count_pokes; ++i)
+        for (int i = real_pokes_size; i < count_pokes; ++i)
         {
-            //Pokemon* temp = &pokemons[i];
-            this->Pokes_ptr[i] = &pokemons[i];
-
-            //pokemons[i];
+            Pokes_ptr[i] = &Parsed_pokes[i];
+            ++real_pokes_size;
         }
-    }
 
+    }
 
 };
 
@@ -173,13 +324,13 @@ void fight(Pokemon pfirst, Pokemon psecond)
             pfirst.NAME << " здоровье - " << pfirst.STATS.HEALTH << " Энергия - " << first_energy <<
             "   " << psecond.NAME << " здоровье - " << psecond.STATS.HEALTH << " Энергия - " << second_energy;
         cout << "\n";
-
-
+        
         if (fta % 2 == 0)
         {
             int attack_id;
             string fname = pfirst.NAME;
             string sname = psecond.NAME;
+
             /*cout << "Выберите атаку против " << psecond.NAME;
             cout << endl << "Введите \"1\" для атаки " << pfirst.ATTACKS.ATTACK_1.ATCK_NAME
                 << " она нанесет " << pfirst.ATTACKS.ATTACK_1.DAMAGE;
@@ -386,106 +537,6 @@ void fight(Pokemon pfirst, Pokemon psecond)
     }
 }
 
-vector<string> myFunc(string myString)
-{
-    vector<string> traits;
-
-    string SubString;
-    for (int i = 0; i < myString.size(); i++)
-    {
-        char x = myString[i];
-        if (x != ' ')
-        {
-            if ((i + 1) == myString.size())
-            {
-                SubString.push_back(x);
-                traits.push_back(SubString);
-                SubString.clear();
-
-            }
-
-            SubString.push_back(x);
-        }
-        else if(x == ' ')
-        {
-            traits.push_back(SubString);
-            SubString.clear();
-        }
-    }
-    return traits;
-}
-
-Pokemon* parse_pokemons(int&count_pokes)
-{
-    std::ifstream file;
-    file.open("Text.txt");
-    
-    if (file.is_open())
-    {
-        string temp;
-        int k = 0;
-        for (string line; getline(file, line); )
-        {
-            k++;
-        }
-        count_pokes = k;
-        //cout << k;
-        
-        file.close();
-
-        
-        file.open("Text.txt");
-
-        if (file.is_open())
-        {
-            Pokemon* poke_temp = new Pokemon[k];
-            for (int i = 0; i < k; i++)
-            {
-                //temp.clear();
-                std::getline(file, temp);
-                vector<string> traits = myFunc(temp);
-                for (string a : traits)
-                {
-                    //cout << a;
-                }
-
-                poke_temp[i].ID = std::stoi(traits[0]);
-                poke_temp[i].NAME = traits[1];
-                poke_temp[i].TYPE = parse_string_to_pok_type(traits[2]);
-                poke_temp[i].STATS.HEALTH = std::stoi(traits[3]);
-                poke_temp[i].STATS.DEFENCE = std::stoi(traits[4]);
-                poke_temp[i].STATS.WEAKNESS = parse_string_to_pok_type(traits[5]);
-                poke_temp[i].STATS.SPEED = std::stoi(traits[6]);
-
-                poke_temp[i].ATTACKS[0].ATCK_NAME = traits[7];
-                poke_temp[i].ATTACKS[0].DAMAGE = std::stoi(traits[8]);
-                poke_temp[i].ATTACKS[0].ENERGY = std::stoi(traits[9]);
-
-                poke_temp[i].ATTACKS[1].ATCK_NAME = traits[10];
-                poke_temp[i].ATTACKS[1].DAMAGE = std::stoi(traits[11]);
-                poke_temp[i].ATTACKS[1].ENERGY = std::stoi(traits[12]);
-
-                poke_temp[i].ATTACKS[2].ATCK_NAME = traits[13];
-                poke_temp[i].ATTACKS[2].DAMAGE = std::stoi(traits[14]);
-                poke_temp[i].ATTACKS[2].ENERGY = std::stoi(traits[15]);
-            }
-
-            return poke_temp;
-        }
-        else
-        {
-            cout << "File didnt open";
-            file.close();
-            return nullptr;
-        }
-    }
-    else
-    {
-        cout << "File didnt open";
-        file.close();
-        return nullptr;
-    }
-}
 
 //std::ostream& operator << (std::ostream& os, Pokemon& poke)
 //{
@@ -500,11 +551,15 @@ int main()
 
 
     poke_space Pokemon_db;
+    Pokemon* pt = new Pokemon;
+    *pt = Pokemon_db.Parsed_pokes[Pokemon_db.count_pokes - 1];
 
-    Pokemon_db.Parsed_pokes = parse_pokemons(Pokemon_db.count_pokes);
+    Pokemon_db.pb(pt);
+    Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, 5);
+    Pokemon_db.out_pokes();
 
-    Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, Pokemon_db.pokes_size, Pokemon_db.count_pokes);
+    fight(*(Pokemon_db.Pokes_ptr[3]), *(Pokemon_db.Pokes_ptr[8]));
 
-    fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[1]));
+    //fight(*(Pokemon_db.Pokes_ptr[1]), *(Pokemon_db.Pokes_ptr[3]));
 }
 
