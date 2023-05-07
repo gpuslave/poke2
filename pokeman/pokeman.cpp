@@ -40,7 +40,12 @@ void input_check( int&input_var )
 pokemon_type parse_string_to_pok_type(string temp)
 {
     vector<string> mas{"NORMAL", "FIRE", "WATER", "ELECTRIC", "GRASS", "ICE", "FIGHTING", "POISON", "GROUND", "FLYING", "PSYCHIC", "BUG", "ROCK", "GHOST", "DRAGON", "DARK", "STEEL", "FAIRY"};
+    //cout << temp;
 
+    for (int i = 0; i < temp.length(); i++)
+        temp[i] = toupper(temp[i]);
+
+    //cout << temp;
     for (int i = 0; i < mas.size() ; ++i)
     {
         if (temp == mas[i])
@@ -545,21 +550,23 @@ void fight(Pokemon pfirst, Pokemon psecond)
 
 int main()
 {
-    //setlocale(LC_ALL, "Russian");
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
 
     poke_space Pokemon_db;
-    Pokemon* pt = new Pokemon;
+
+
+    //test
+    /*Pokemon* pt = new Pokemon;
     *pt = Pokemon_db.Parsed_pokes[Pokemon_db.count_pokes - 1];
 
     Pokemon_db.pb(pt);
-    Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, 5);
+    Pokemon_db.pb_all(Pokemon_db.Parsed_pokes, Pokemon_db.count_pokes);*/
+
+
     Pokemon_db.out_pokes();
+    fight(*(Pokemon_db.Pokes_ptr[0]), *(Pokemon_db.Pokes_ptr[Pokemon_db.count_pokes-1]));
 
-    fight(*(Pokemon_db.Pokes_ptr[3]), *(Pokemon_db.Pokes_ptr[8]));
-
-    //fight(*(Pokemon_db.Pokes_ptr[1]), *(Pokemon_db.Pokes_ptr[3]));
 }
 
