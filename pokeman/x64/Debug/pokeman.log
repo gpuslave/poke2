@@ -1,2 +1,3 @@
 ﻿  pokeman.cpp
+E:\plus\repos\poke2\pokeman\pokeman.cpp(903): warning C4715: 'poke_space::tournament': not all control paths return a value
   pokeman.vcxproj -> E:\plus\repos\poke2\x64\Debug\pokeman.exe
